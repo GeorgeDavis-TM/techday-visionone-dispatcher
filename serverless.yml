@@ -1,0 +1,31 @@
+org: georgedavis
+app: techday-visionone-dispatcher
+service: techday-visionone-dispatcher
+
+frameworkVersion: '2'
+
+
+provider:
+  name: aws
+  runtime: python3.8
+  stage: prod
+  region: us-east-2
+  memorySize: 128
+  timeout: 10
+  logRetentionInDays: 14
+  environment:
+    v1ApiEndpoint: https://api.xdr.trendmicro.com/
+    v1ApiVersion: beta
+    v1ApiAuthToken: eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJjaWQiOiJmYjRmM2ExZC01ZTY1LTRiNjMtYWFiMS04MTU0OTA4N2EwMzEiLCJjcGlkIjoic3ZwIiwicHBpZCI6ImN1cyIsIml0IjoxNjExNzgxMTg4LCJ1aWQiOiJnZW9yZ2UuZGF2aXNAdGNsYWJzLmNhIiwicGwiOiIiLCJldCI6MTY0MzMxNzE4N30.RCauPibOZhr6l2YKzXOTjZqmUemHez3wBoEfDL_jz0793oxXegZUHFfFx-2x1eNmFvO2oPglKYo2Su0CyjiMZOrSe2vdx-ZLa4TOA_9TnXM45jI3Yt4AoOyeGy9-8-zKDsXCmJAmuqbeMpq5cHT1ijVkHDZaTaiEyDccl490om55NTiVBYW4iBayGMPEnE9GK5oQ0wkpdkxmeUkYmtLQm2upN15VGSwH1-B9B4k8kO4vmZfoZk-BZxKJqtFE2-y74udCyoblSt8MVomWOC1HWMFW2Ke462b5dhresk7DijhFhMvFxI6bo1c7K8k9Dp_3DsTFHEaQ9pGXNAZPhmrRqfwy3KYap3hzaAmpX112Yed1RoBctx7FRtPuOJThR-3yE3xi4Us6FyKfTjKpkcCnT--IcqZOUsNw0sFklOLNPXqOXkTbPPtXwibl2RF9dwD2L4cfkHMznUy2p17ne5F6gWTNWYAf5mL2K_pPa3T8aZE3rYvvGRxEzxprRhkGpvBGZ8N0f0aH0XWfxtenYRK3fTfD9XYDEA7W59XKempeVKcJnwNUYj0IdlQzVlT42kh0UhfGicxclToonWSzzVdNahDpG82-X4p0Piv9saLaburKLresGo6OQjSQ1Aaiesfjj7dSZ5gT5Y2wen8qUeeKs6w9v0WOj35MVT0P4LsEkWY
+  tags:
+    BusinessCase: TechDay2021-2
+    Owner: georged
+  stackTags:
+    BusinessCase: TechDay2021-2
+    Owner: georged
+  lambdaHashingVersion: 20201221
+
+functions:
+  main:
+    handler: handler.main
+    description: Vision One API Dispatcher   
