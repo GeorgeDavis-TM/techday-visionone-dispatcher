@@ -11,7 +11,7 @@ provider:
   stage: prod
   region: us-east-2
   memorySize: 128
-  timeout: 10
+  timeout: 650
   logRetentionInDays: 14
   environment:
     v1ApiEndpoint: https://api.xdr.trendmicro.com/

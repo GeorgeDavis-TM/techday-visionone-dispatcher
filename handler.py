@@ -1,6 +1,7 @@
 import json
 import os
 import urllib3
+import time
 
 validSourceTypes = ["endpointActivityData", "messageActivityData", "detections", "networkActivityData"]
 validQueryFields = ["hostname" "macaddr" "ip"]
@@ -85,6 +86,26 @@ def collectFile(http, baseUrl, httpHeaders):
     r = http.request('POST', baseUrl + "/xdr/response/collectFile", headers=httpHeaders, body=json.dumps(body))
 
     return json.loads(r.data)
+
+def getResponseTaskDetails(http, baseUrl, httpHeaders, actionId=0):
+
+    result = {}
+    taskStatus = "pending"
+
+    while (taskStatus == "pending"):
+
+        r = http.request('GET', baseUrl + "/xdr/response/getTask?actionId=" + actionId, headers=httpHeaders)
+
+        taskStatus = json.loads(r.data)["data"]["taskStatus"]
+
+        print(str(taskStatus) + "...")
+
+        if taskStatus != "pending":
+            result = json.loads(r.data)
+        else:
+            time.sleep(5)
+
+    return result
 
 def getCollectedFileInfo(http, baseUrl, httpHeaders, actionId=0):
 
@@ -177,6 +198,8 @@ def main(event, context):
     # print("terminateProcess - " + str(terminateProcess(http, v1ApiEndpoint, headers)))
     # print("collectFile - " + str(collectFile(http, v1ApiEndpoint, headers)))
     # print("getCollectedFileInfo - " + str(getCollectedFileInfo(http, v1ApiEndpoint, headers)))
+    print("getResponseTaskDetails - " + str(getResponseTaskDetails(http, v1ApiEndpoint, headers, "00000293")))
+    print("getResponseTaskDetails - " + str(getResponseTaskDetails(http, v1ApiEndpoint, headers, "00000297")))
     print("searchEndpoint - " + str(searchEndpoint(http, v1ApiEndpoint, headers, "D1C31A8E-8944-4317-9E62-9E8FE5EAAA52")))
     print("searchMultipleEndpoints - " + str(searchMultipleEndpoints(http, v1ApiEndpoint, headers, ["D1C31A8E-8944-4317-9E62-9E8FE5EAAA52"])))
     print("queryAgentInfo - " + str(queryAgentInfo(http, v1ApiEndpoint, headers, "hostname", "UbuntuXDR")))
