@@ -1,0 +1,606 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "Vision One + Workload Security Challenge - Tech Day 2020 - 2",
+    "Parameters": {
+        "VpcId": {
+            "Type": "AWS::EC2::VPC::Id",
+            "Description": "VpcId of your existing Virtual Private Cloud (VPC)",
+            "ConstraintDescription": "must be the VPC Id of an existing Virtual Private Cloud."
+        },
+        "SubnetId": {
+            "Type": "AWS::EC2::Subnet::Id",
+            "Description": "SubnetId of an existing subnet (for the primary network) in your Virtual Private Cloud (VPC)",
+            "ConstraintDescription": "must be an existing subnet in the selected Virtual Private Cloud."
+        },
+        "WSTenantId": {
+            "Type": "String",
+            "Description": "Tenant ID of the Workload Security Tenant",
+            "ConstraintDescription": "must be a valid Tenant Id from Workload Security",
+            "Default": "0C0F6851-AB41-04C6-D6A8-5479A257E932"
+        },
+        "WSPolicyId": {
+            "Type": "Number",
+            "Description": "Policy ID of the security policy to be deployed on the EC2 Instance",
+            "ConstraintDescription": "must be valid Policy Id from Workload Security.",
+            "Default": 1058
+        },
+        "WSToken": {
+            "Type": "String",
+            "Description": "Token from Workload Security Console",
+            "ConstraintDescription": "must be valid token from Workload Security.",
+            "Default": "09C86B32-AED2-35D9-8807-A4C47BFA6257"
+        }
+    },
+    "Mappings": {
+        "ImageId": {
+            "us-east-1": {
+                "HVM64": "ami-0aeeebd8d2ab47354"
+            },
+            "us-east-2": {
+                "HVM64": "ami-0d8d212151031f51c"
+            },
+            "us-west-1": {
+                "HVM64": "ami-0b2ca94b5b49e0132"
+            },
+            "us-west-2": {
+                "HVM64": "ami-0800fc0fa715fdcfe"
+            },
+            "ca-central-1": {
+                "HVM64": "ami-07625b74039b1a58b"
+            }
+        }
+    },
+    "Resources": {
+        "EC2Instance": {
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+                "ImageId": {
+                    "Fn::FindInMap": [
+                        "ImageId",
+                        {
+                            "Ref": "AWS::Region"
+                        },
+                        "HVM64"
+                    ]
+                },
+                "InstanceInitiatedShutdownBehavior": "stop",
+                "DisableApiTermination": true,
+                "InstanceType": "t3a.medium",
+                "IamInstanceProfile": {
+                    "Ref": "SSMIAMInstanceProfile"
+                },
+                "KeyName": "CloudOne",
+                "SubnetId": {
+                    "Ref": "SubnetId"
+                },
+                "SecurityGroupIds": [
+                    {
+                        "Ref": "EC2SecurityGroup"
+                    }
+                ],
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Sub": [
+                            {
+                                "Fn::Join": [
+                                    "",
+                                    [
+                                        "#!/bin/bash\n",
+                                        "ACTIVATIONURL='dsm://agents.deepsecurity.trendmicro.com:443/'\n",
+                                        "MANAGERURL='https://app.deepsecurity.trendmicro.com:443'\n",
+                                        "TENANTID='WSTenantId'\n",
+                                        "POLICYID=WSPolicyId\n",
+                                        "TOKEN='WSToken'\n",
+                                        "CURLOPTIONS='--silent --tlsv1.2'\n",
+                                        "linuxPlatform='';\n",
+                                        "isRPM='';\n",
+                                        "if [[ $(/usr/bin/id -u) -ne 0 ]]; then\n",
+                                        "echo You are not running as the root user.  Please try again with root privileges.;\n",
+                                        "logger -t You are not running as the root user.  Please try again with root privileges.;\n",
+                                        "exit 1;\n",
+                                        "fi;\n",
+                                        "if ! type curl >/dev/null 2>&1; then\n",
+                                        "echo \"Please install CURL before running this script.\"\n",
+                                        "logger -t Please install CURL before running this script\n",
+                                        "exit 1\n",
+                                        "fi\n",
+                                        "CURLOUT=$(eval curl $MANAGERURL/software/deploymentscript/platform/linuxdetectscriptv1/ -o /tmp/PlatformDetection $CURLOPTIONS;)\n",
+                                        "err=$?\n",
+                                        "if [[ $err -eq 60 ]]; then\n",
+                                        "echo \"TLS certificate validation for the agent package download has failed. Please check that your Deep Security Manager TLS certificate is signed by a trusted root certificate authority. For more information, search for \\\"deployment scripts\\\" in the Deep Security Help Center.\"\n",
+                                        "logger -t TLS certificate validation for the agent package download has failed. Please check that your Deep Security Manager TLS certificate is signed by a trusted root certificate authority. For more information, search for \\\"deployment scripts\\\" in the Deep Security Help Center.\n",
+                                        "exit 1;\n",
+                                        "fi\n",
+                                        "if [ -s /tmp/PlatformDetection ]; then\n",
+                                        ". /tmp/PlatformDetection\n",
+                                        "else\n",
+                                        "echo \"Failed to download the agent installation support script.\"\n",
+                                        "logger -t Failed to download the Deep Security Agent installation support script\n",
+                                        "exit 1\n",
+                                        "fi\n",
+                                        "platform_detect\n",
+                                        "if [[ -z \"${linuxPlatform}\" ]] || [[ -z \"${isRPM}\" ]]; then\n",
+                                        "echo Unsupported platform is detected\n",
+                                        "logger -t Unsupported platform is detected\n",
+                                        "exit 1\n",
+                                        "fi\n",
+                                        "echo Downloading agent package...\n",
+                                        "if [[ $isRPM == 1 ]]; then package='agent.rpm'\n",
+                                        "else package='agent.deb'\n",
+                                        "fi\n",
+                                        "curl -H \"Agent-Version-Control: on\" $MANAGERURL/software/agent/${runningPlatform}${majorVersion}/${archType}/$package?tenantID=81444 -o /tmp/$package $CURLOPTIONS\n",
+                                        "echo Installing agent package...\n",
+                                        "rc=1\n",
+                                        "if [[ $isRPM == 1 && -s /tmp/agent.rpm ]]; then\n",
+                                        "rpm -ihv /tmp/agent.rpm\n",
+                                        "rc=$?\n",
+                                        "elif [[ -s /tmp/agent.deb ]]; then\n",
+                                        "dpkg -i /tmp/agent.deb\n",
+                                        "rc=$?\n",
+                                        "else\n",
+                                        "echo Failed to download the agent package. Please make sure the package is imported in the Deep Security Manager\n",
+                                        "logger -t Failed to download the agent package. Please make sure the package is imported in the Deep Security Manager\n",
+                                        "exit 1\n",
+                                        "fi\n",
+                                        "if [[ ${rc} != 0 ]]; then\n",
+                                        "echo Failed to install the agent package\n",
+                                        "logger -t Failed to install the agent package\n",
+                                        "exit 1\n",
+                                        "fi\n",
+                                        "echo Install the agent package successfully\n",
+                                        "sleep 15\n",
+                                        "/opt/ds_agent/dsa_control -r\n",
+                                        "\/opt\/ds_agent\/dsa_control -a $ACTIVATIONURL \"tenantID:$TENANTID\" \"token:$TOKEN\" \"policyid:$POLICYID\"\n",
+                                        "# \/opt\/ds_agent\/dsa_control -a dsm:\/\/agents.deepsecurity.trendmicro.com:443\/ \"tenantID:$TENANTID\" \"token:$TOKEN\" \"policyid:$POLICYID\"\n"
+                                    ]
+                                ]
+                            },
+                            {
+                                "WSTenantId": {
+                                    "Ref": "WSTenantId"
+                                },
+                                "WSPolicyId": {
+                                    "Ref": "WSPolicyId"
+                                },
+                                "WSToken": {
+                                    "Ref": "WSToken"
+                                }
+                            }
+                        ]
+                    }
+                },
+                "Tags": [
+                    {
+                        "Key": "Owner",
+                        "Value": "TrendMicro"
+                    },
+                    {
+                        "Key": "Product",
+                        "Value": "TechDay2021-2"
+                    },
+                    {
+                        "Key": "Name",
+                        "Value": "TechDay2021-2"
+                    }
+                ]
+            }
+        },
+        "EC2SecurityGroup": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "GroupDescription": "Security Group - TechDay2021-2",
+                "GroupName": "TechDay2021-2",
+                "SecurityGroupIngress": [
+                    {
+                        "CidrIp": "99.251.123.74/32",
+                        "Description": "Manual SSH Access",
+                        "FromPort": 22,
+                        "ToPort": 22,
+                        "IpProtocol": "TCP"
+                    }
+                ],
+                "Tags": [
+                    {
+                        "Key": "Owner",
+                        "Value": "TrendMicro"
+                    },
+                    {
+                        "Key": "Product",
+                        "Value": "TechDay2021-2"
+                    },
+                    {
+                        "Key": "Name",
+                        "Value": "TechDay2021-2"
+                    }
+                ],
+                "VpcId": {
+                    "Ref": "VpcId"
+                }
+            }
+        },
+        "SSMIAMRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": [
+                                    "ec2.amazonaws.com"
+                                ]
+                            },
+                            "Action": [
+                                "sts:AssumeRole"
+                            ]
+                        }
+                    ]
+                },
+                "Description": "TechDay2021-2-SSM-Role",
+                "ManagedPolicyArns": [
+                    "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
+                    "arn:aws:iam::aws:policy/AmazonSSMPatchAssociation"
+                ],
+                "Path": "/",
+                "RoleName": "TechDay2021-2-SSM-Role",
+                "Tags": [
+                    {
+                        "Key": "Owner",
+                        "Value": "TrendMicro"
+                    },
+                    {
+                        "Key": "Product",
+                        "Value": "TechDay2021-2"
+                    },
+                    {
+                        "Key": "Name",
+                        "Value": "TechDay2021-2"
+                    }
+                ]
+            }
+        },
+        "SSMIAMInstanceProfile": {
+            "Type": "AWS::IAM::InstanceProfile",
+            "Properties": {
+                "InstanceProfileName": "TechDay2021-2-SSM-InstanceProfile",
+                "Path": "/",
+                "Roles": [
+                    {
+                        "Ref": "SSMIAMRole"
+                    }
+                ]
+            }
+        },
+        "InstallPowerShell": {
+            "Type": "AWS::SSM::Document",
+            "Properties": {
+                "Content": {
+                    "schemaVersion": "2.2",
+                    "description": "0. Install PowerShell",
+                    "mainSteps": [
+                        {
+                            "action": "aws:runShellScript",
+                            "name": "runCommands",
+                            "inputs": {
+                                "timeoutSeconds": "60",
+                                "runCommand": [
+                                    "curl https://packages.microsoft.com/config/rhel/7/prod.repo | sudo tee /etc/yum.repos.d/microsoft.repo",
+                                    "yum install -y powershell"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "DocumentFormat": "JSON",
+                "DocumentType": "Command",
+                "Name": "InstallPowerShell",
+                "Tags": [
+                    {
+                        "Key": "Owner",
+                        "Value": "TrendMicro"
+                    },
+                    {
+                        "Key": "Product",
+                        "Value": "TechDay2021-2"
+                    },
+                    {
+                        "Key": "Name",
+                        "Value": "TechDay2021-2"
+                    }
+                ],
+                "TargetType": "/AWS::EC2::Instance"
+            }
+        },
+        "InstallAtomicsFolder": {
+            "Type": "AWS::SSM::Document",
+            "Properties": {
+                "Content": {
+                    "schemaVersion": "2.2",
+                    "description": "1. Install Atomics Folder",
+                    "parameters": {
+                        "commands": {
+                            "type": "String",
+                            "description": "1. Install Atomics Folder",
+                            "default": "pwsh -Command 'IEX (IWR \"https:\/\/raw.githubusercontent.com\/redcanaryco\/invoke-atomicredteam\/master\/install-atomicsfolder.ps1\" -UseBasicParsing); Install-AtomicsFolder -Force; Install-Module powershell-yaml -Force;'"
+                        }
+                    },
+                    "mainSteps": [
+                        {
+                            "action": "aws:runShellScript",
+                            "name": "runCommands",
+                            "inputs": {
+                                "timeoutSeconds": "60",
+                                "runCommand": [
+                                    "{{ commands }}"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "DocumentFormat": "JSON",
+                "DocumentType": "Command",
+                "Name": "InstallAtomicsFolder",
+                "Tags": [
+                    {
+                        "Key": "Owner",
+                        "Value": "TrendMicro"
+                    },
+                    {
+                        "Key": "Product",
+                        "Value": "TechDay2021-2"
+                    },
+                    {
+                        "Key": "Name",
+                        "Value": "TechDay2021-2"
+                    }
+                ],
+                "TargetType": "/AWS::EC2::Instance"
+            }
+        },
+        "InstallInvokeAtomicRedTeam": {
+            "Type": "AWS::SSM::Document",
+            "Properties": {
+                "Content": {
+                    "schemaVersion": "2.2",
+                    "description": "2. Install Atomic Red Team",
+                    "parameters": {
+                        "commands": {
+                            "type": "String",
+                            "description": "2. Install Atomic Red Team",
+                            "default": "pwsh -Command 'IEX (IWR \"https:\/\/raw.githubusercontent.com\/redcanaryco\/invoke-atomicredteam\/master\/install-atomicredteam.ps1\" -UseBasicParsing); Install-AtomicRedTeam -Force;'"
+                        }
+                    },
+                    "mainSteps": [
+                        {
+                            "action": "aws:runShellScript",
+                            "name": "runCommands",
+                            "inputs": {
+                                "timeoutSeconds": "60",
+                                "runCommand": [
+                                    "{{ commands }}"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "DocumentFormat": "JSON",
+                "DocumentType": "Command",
+                "Name": "InstallInvokeAtomicRedTeam",
+                "Tags": [
+                    {
+                        "Key": "Owner",
+                        "Value": "TrendMicro"
+                    },
+                    {
+                        "Key": "Product",
+                        "Value": "TechDay2021-2"
+                    },
+                    {
+                        "Key": "Name",
+                        "Value": "TechDay2021-2"
+                    }
+                ],
+                "TargetType": "/AWS::EC2::Instance"
+            }
+        },
+        "RunTestCommand": {
+            "Type": "AWS::SSM::Document",
+            "Properties": {
+                "Content": {
+                    "schemaVersion": "2.2",
+                    "description": "3. Run Test Command",
+                    "parameters": {
+                        "commands": {
+                            "type": "String",
+                            "description": "3. Run Test Command",
+                            "default": "pwsh -Command 'Import-Module \"/AtomicRedTeam/invoke-atomicredteam/Invoke-AtomicRedTeam.psd1\" -Force; $PSDefaultParameterValues = @{\"Invoke-AtomicTest:PathToAtomicsFolder\"=\"/AtomicRedTeam/atomics\"}; Invoke-AtomicTest All -ShowDetailsBrief'"
+                        }
+                    },
+                    "mainSteps": [
+                        {
+                            "action": "aws:runShellScript",
+                            "name": "runCommands",
+                            "inputs": {
+                                "timeoutSeconds": "60",
+                                "runCommand": [
+                                    "{{ commands }}"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "DocumentFormat": "JSON",
+                "DocumentType": "Command",
+                "Name": "RunTestCommand",
+                "Tags": [
+                    {
+                        "Key": "Owner",
+                        "Value": "TrendMicro"
+                    },
+                    {
+                        "Key": "Product",
+                        "Value": "TechDay2021-2"
+                    },
+                    {
+                        "Key": "Name",
+                        "Value": "TechDay2021-2"
+                    }
+                ],
+                "TargetType": "/AWS::EC2::Instance"
+            }
+        },
+        "T15470061": {
+            "Type": "AWS::SSM::Document",
+            "Properties": {
+                "Content": {
+                    "schemaVersion": "2.2",
+                    "description": "T1547.006.1 Linux - Load Kernel Module via insmod",
+                    "parameters": {
+                        "commands": {
+                            "type": "String",
+                            "description": "T1547.006-1 Linux - Load Kernel Module via insmod",
+                            "default": "pwsh -Command 'Import-Module \"/AtomicRedTeam/invoke-atomicredteam/Invoke-AtomicRedTeam.psd1\" -Force; $PSDefaultParameterValues = @{\"Invoke-AtomicTest:PathToAtomicsFolder\"=\"/AtomicRedTeam/atomics\"}; Invoke-AtomicTest T1547.006 -TestNumbers 1 -Cleanup;'"
+                        }
+                    },
+                    "mainSteps": [
+                        {
+                            "action": "aws:runShellScript",
+                            "name": "runCommands",
+                            "inputs": {
+                                "timeoutSeconds": "60",
+                                "runCommand": [
+                                    "{{ commands }}"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "DocumentFormat": "JSON",
+                "DocumentType": "Command",
+                "Name": "T15470061",
+                "Tags": [
+                    {
+                        "Key": "Owner",
+                        "Value": "TrendMicro"
+                    },
+                    {
+                        "Key": "Product",
+                        "Value": "TechDay2021-2"
+                    },
+                    {
+                        "Key": "Name",
+                        "Value": "TechDay2021-2"
+                    }
+                ],
+                "TargetType": "/AWS::EC2::Instance"
+            }
+        },
+        "T11360015": {
+            "Type": "AWS::SSM::Document",
+            "Properties": {
+                "Content": {
+                    "schemaVersion": "2.2",
+                    "description": "T1136.001-5 Create a new user in Linux with `root` UID and GID",
+                    "parameters": {
+                        "commands": {
+                            "type": "String",
+                            "description": "T1136.001-5 Create a new user in Linux with `root` UID and GID",
+                            "default": "pwsh -Command 'Import-Module \"/AtomicRedTeam/invoke-atomicredteam/Invoke-AtomicRedTeam.psd1\" -Force; $PSDefaultParameterValues = @{\"Invoke-AtomicTest:PathToAtomicsFolder\"=\"/AtomicRedTeam/atomics\"}; Invoke-AtomicTest T1136.001 -TestNumbers 5 -Cleanup;'"
+                        }
+                    },
+                    "mainSteps": [
+                        {
+                            "action": "aws:runShellScript",
+                            "name": "runCommands",
+                            "inputs": {
+                                "timeoutSeconds": "60",
+                                "runCommand": [
+                                    "{{ commands }}"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "DocumentFormat": "JSON",
+                "DocumentType": "Command",
+                "Name": "T11360015",
+                "Tags": [
+                    {
+                        "Key": "Owner",
+                        "Value": "TrendMicro"
+                    },
+                    {
+                        "Key": "Product",
+                        "Value": "TechDay2021-2"
+                    },
+                    {
+                        "Key": "Name",
+                        "Value": "TechDay2021-2"
+                    }
+                ],
+                "TargetType": "/AWS::EC2::Instance"
+            }
+        },
+        "T10870012": {
+            "Type": "AWS::SSM::Document",
+            "Properties": {
+                "Content": {
+                    "schemaVersion": "2.2",
+                    "description": "T1087.001-2 View sudoers access",
+                    "parameters": {
+                        "commands": {
+                            "type": "String",
+                            "description": "T1087.001-2 View sudoers access",
+                            "default": "pwsh -Command 'Import-Module \"/AtomicRedTeam/invoke-atomicredteam/Invoke-AtomicRedTeam.psd1\" -Force; $PSDefaultParameterValues = @{\"Invoke-AtomicTest:PathToAtomicsFolder\"=\"/AtomicRedTeam/atomics\"}; Invoke-AtomicTest T1087.001 -TestNumbers 2 -Cleanup;'"
+                        }
+                    },
+                    "mainSteps": [
+                        {
+                            "action": "aws:runShellScript",
+                            "name": "runCommands",
+                            "inputs": {
+                                "timeoutSeconds": "60",
+                                "runCommand": [
+                                    "{{ commands }}"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "DocumentFormat": "JSON",
+                "DocumentType": "Command",
+                "Name": "T10870012",
+                "Tags": [
+                    {
+                        "Key": "Owner",
+                        "Value": "TrendMicro"
+                    },
+                    {
+                        "Key": "Product",
+                        "Value": "TechDay2021-2"
+                    },
+                    {
+                        "Key": "Name",
+                        "Value": "TechDay2021-2"
+                    }
+                ],
+                "TargetType": "/AWS::EC2::Instance"
+            }
+        }
+    },
+    "Outputs": {
+        "EC2Instance": {
+            "Description": "Instance Id of the Challenge EC2 Instance",
+            "Value": {
+                "Ref": "EC2Instance"
+            }
+        },
+        "EC2SecurityGroup": {
+            "Description": "Security Group Id of the Challenge EC2 Security Group",
+            "Value": {
+                "Ref": "EC2SecurityGroup"
+            }
+        }
+    }
+}

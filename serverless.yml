@@ -25,7 +25,40 @@ provider:
     Owner: georged
   lambdaHashingVersion: 20201221
 
+package:
+  individually: true
+  patterns:
+  - '!**'
+
 functions:
-  main:
-    handler: handler.main
-    description: Vision One API Dispatcher   
+  verifyV1WSConnection:
+    handler: verifyV1WSConnection.main
+    description: Verify Vision One - Cloud One Workload Security Connection Status
+    package:
+      patterns:      
+      - '*verifyV1WSConnection.py'
+  v1ResponseActions:
+    handler: v1ResponseActions.main
+    description: Respond with Vision One Context Menus
+    package:
+      patterns:      
+      - '*v1ResponseActions.py'
+  v1Notifications:
+    handler: v1Notifications.main
+    description: Trigger Vision One Notification Options
+    package:
+      patterns:      
+      - '*v1Notifications.py'
+  v1Search:
+    handler: v1Search.main
+    description: Query Vision One from the Vision One API
+    package:
+      patterns:      
+      - '*v1Search.py'
+  runCommand:
+    handler: runCommand.main
+    description: Run Command - AWS Systems Manager
+    package:
+      patterns:      
+      - '*runCommand.py'
+
