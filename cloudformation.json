@@ -80,92 +80,74 @@
                 ],
                 "UserData": {
                     "Fn::Base64": {
-                        "Fn::Sub": [
-                            {
-                                "Fn::Join": [
-                                    "",
-                                    [
-                                        "#!/bin/bash\n",
-                                        "ACTIVATIONURL='dsm://agents.deepsecurity.trendmicro.com:443/'\n",
-                                        "MANAGERURL='https://app.deepsecurity.trendmicro.com:443'\n",
-                                        "TENANTID='WSTenantId'\n",
-                                        "POLICYID=WSPolicyId\n",
-                                        "TOKEN='WSToken'\n",
-                                        "CURLOPTIONS='--silent --tlsv1.2'\n",
-                                        "linuxPlatform='';\n",
-                                        "isRPM='';\n",
-                                        "if [[ $(/usr/bin/id -u) -ne 0 ]]; then\n",
-                                        "echo You are not running as the root user.  Please try again with root privileges.;\n",
-                                        "logger -t You are not running as the root user.  Please try again with root privileges.;\n",
-                                        "exit 1;\n",
-                                        "fi;\n",
-                                        "if ! type curl >/dev/null 2>&1; then\n",
-                                        "echo \"Please install CURL before running this script.\"\n",
-                                        "logger -t Please install CURL before running this script\n",
-                                        "exit 1\n",
-                                        "fi\n",
-                                        "CURLOUT=$(eval curl $MANAGERURL/software/deploymentscript/platform/linuxdetectscriptv1/ -o /tmp/PlatformDetection $CURLOPTIONS;)\n",
-                                        "err=$?\n",
-                                        "if [[ $err -eq 60 ]]; then\n",
-                                        "echo \"TLS certificate validation for the agent package download has failed. Please check that your Deep Security Manager TLS certificate is signed by a trusted root certificate authority. For more information, search for \\\"deployment scripts\\\" in the Deep Security Help Center.\"\n",
-                                        "logger -t TLS certificate validation for the agent package download has failed. Please check that your Deep Security Manager TLS certificate is signed by a trusted root certificate authority. For more information, search for \\\"deployment scripts\\\" in the Deep Security Help Center.\n",
-                                        "exit 1;\n",
-                                        "fi\n",
-                                        "if [ -s /tmp/PlatformDetection ]; then\n",
-                                        ". /tmp/PlatformDetection\n",
-                                        "else\n",
-                                        "echo \"Failed to download the agent installation support script.\"\n",
-                                        "logger -t Failed to download the Deep Security Agent installation support script\n",
-                                        "exit 1\n",
-                                        "fi\n",
-                                        "platform_detect\n",
-                                        "if [[ -z \"${linuxPlatform}\" ]] || [[ -z \"${isRPM}\" ]]; then\n",
-                                        "echo Unsupported platform is detected\n",
-                                        "logger -t Unsupported platform is detected\n",
-                                        "exit 1\n",
-                                        "fi\n",
-                                        "echo Downloading agent package...\n",
-                                        "if [[ $isRPM == 1 ]]; then package='agent.rpm'\n",
-                                        "else package='agent.deb'\n",
-                                        "fi\n",
-                                        "curl -H \"Agent-Version-Control: on\" $MANAGERURL/software/agent/${runningPlatform}${majorVersion}/${archType}/$package?tenantID=81444 -o /tmp/$package $CURLOPTIONS\n",
-                                        "echo Installing agent package...\n",
-                                        "rc=1\n",
-                                        "if [[ $isRPM == 1 && -s /tmp/agent.rpm ]]; then\n",
-                                        "rpm -ihv /tmp/agent.rpm\n",
-                                        "rc=$?\n",
-                                        "elif [[ -s /tmp/agent.deb ]]; then\n",
-                                        "dpkg -i /tmp/agent.deb\n",
-                                        "rc=$?\n",
-                                        "else\n",
-                                        "echo Failed to download the agent package. Please make sure the package is imported in the Deep Security Manager\n",
-                                        "logger -t Failed to download the agent package. Please make sure the package is imported in the Deep Security Manager\n",
-                                        "exit 1\n",
-                                        "fi\n",
-                                        "if [[ ${rc} != 0 ]]; then\n",
-                                        "echo Failed to install the agent package\n",
-                                        "logger -t Failed to install the agent package\n",
-                                        "exit 1\n",
-                                        "fi\n",
-                                        "echo Install the agent package successfully\n",
-                                        "sleep 15\n",
-                                        "/opt/ds_agent/dsa_control -r\n",
-                                        "\/opt\/ds_agent\/dsa_control -a $ACTIVATIONURL \"tenantID:$TENANTID\" \"token:$TOKEN\" \"policyid:$POLICYID\"\n",
-                                        "# \/opt\/ds_agent\/dsa_control -a dsm:\/\/agents.deepsecurity.trendmicro.com:443\/ \"tenantID:$TENANTID\" \"token:$TOKEN\" \"policyid:$POLICYID\"\n"
-                                    ]
-                                ]
-                            },
-                            {
-                                "WSTenantId": {
-                                    "Ref": "WSTenantId"
-                                },
-                                "WSPolicyId": {
-                                    "Ref": "WSPolicyId"
-                                },
-                                "WSToken": {
-                                    "Ref": "WSToken"
-                                }
-                            }
+                        "Fn::Join": [
+                            "",
+                            [
+                                "#!/bin/bash\n",
+                                "ACTIVATIONURL='dsm://agents.deepsecurity.trendmicro.com:443/'\n",
+                                "MANAGERURL='https://app.deepsecurity.trendmicro.com:443'\n",
+                                "CURLOPTIONS='--silent --tlsv1.2'\n",
+                                "linuxPlatform='';\n",
+                                "isRPM='';\n",
+                                "if [[ $(/usr/bin/id -u) -ne 0 ]]; then\n",
+                                "echo You are not running as the root user.  Please try again with root privileges.;\n",
+                                "logger -t You are not running as the root user.  Please try again with root privileges.;\n",
+                                "exit 1;\n",
+                                "fi;\n",
+                                "if ! type curl >/dev/null 2>&1; then\n",
+                                "echo \"Please install CURL before running this script.\"\n",
+                                "logger -t Please install CURL before running this script\n",
+                                "exit 1\n",
+                                "fi\n",
+                                "CURLOUT=$(eval curl $MANAGERURL/software/deploymentscript/platform/linuxdetectscriptv1/ -o /tmp/PlatformDetection $CURLOPTIONS;)\n",
+                                "err=$?\n",
+                                "if [[ $err -eq 60 ]]; then\n",
+                                "echo \"TLS certificate validation for the agent package download has failed. Please check that your Deep Security Manager TLS certificate is signed by a trusted root certificate authority. For more information, search for \\\"deployment scripts\\\" in the Deep Security Help Center.\"\n",
+                                "logger -t TLS certificate validation for the agent package download has failed. Please check that your Deep Security Manager TLS certificate is signed by a trusted root certificate authority. For more information, search for \\\"deployment scripts\\\" in the Deep Security Help Center.\n",
+                                "exit 1;\n",
+                                "fi\n",
+                                "if [ -s /tmp/PlatformDetection ]; then\n",
+                                ". /tmp/PlatformDetection\n",
+                                "else\n",
+                                "echo \"Failed to download the agent installation support script.\"\n",
+                                "logger -t Failed to download the Deep Security Agent installation support script\n",
+                                "exit 1\n",
+                                "fi\n",
+                                "platform_detect\n",
+                                "if [[ -z \"${linuxPlatform}\" ]] || [[ -z \"${isRPM}\" ]]; then\n",
+                                "echo Unsupported platform is detected\n",
+                                "logger -t Unsupported platform is detected\n",
+                                "exit 1\n",
+                                "fi\n",
+                                "echo Downloading agent package...\n",
+                                "if [[ $isRPM == 1 ]]; then package='agent.rpm'\n",
+                                "else package='agent.deb'\n",
+                                "fi\n",
+                                "curl -H \"Agent-Version-Control: on\" $MANAGERURL/software/agent/${runningPlatform}${majorVersion}/${archType}/$package?tenantID=81444 -o /tmp/$package $CURLOPTIONS\n",
+                                "echo Installing agent package...\n",
+                                "rc=1\n",
+                                "if [[ $isRPM == 1 && -s /tmp/agent.rpm ]]; then\n",
+                                "rpm -ihv /tmp/agent.rpm\n",
+                                "rc=$?\n",
+                                "elif [[ -s /tmp/agent.deb ]]; then\n",
+                                "dpkg -i /tmp/agent.deb\n",
+                                "rc=$?\n",
+                                "else\n",
+                                "echo Failed to download the agent package. Please make sure the package is imported in the Deep Security Manager\n",
+                                "logger -t Failed to download the agent package. Please make sure the package is imported in the Deep Security Manager\n",
+                                "exit 1\n",
+                                "fi\n",
+                                "if [[ ${rc} != 0 ]]; then\n",
+                                "echo Failed to install the agent package\n",
+                                "logger -t Failed to install the agent package\n",
+                                "exit 1\n",
+                                "fi\n",
+                                "echo Install the agent package successfully\n",
+                                "sleep 15\n",
+                                "/opt/ds_agent/dsa_control -r\n",
+                                "\/opt\/ds_agent\/dsa_control -a $ACTIVATIONURL \"tenantID:", { "Ref": "WSTenantId" }, "\" \"token:", { "Ref": "WSToken" },"\" \"policyid:", { "Ref": "WSPolicyId" }, "\"\n",
+                                "# \/opt\/ds_agent\/dsa_control -a dsm:\/\/agents.deepsecurity.trendmicro.com:443\/ \"tenantID:", { "Ref": "WSTenantId" }, "\" \"token:", { "Ref": "WSToken" },"\" \"policyid:", { "Ref": "WSPolicyId" }, "\"\n"
+                            ]
                         ]
                     }
                 },
@@ -286,7 +268,8 @@
                                 "timeoutSeconds": "60",
                                 "runCommand": [
                                     "curl https://packages.microsoft.com/config/rhel/7/prod.repo | sudo tee /etc/yum.repos.d/microsoft.repo",
-                                    "yum install -y powershell"
+                                    "yum install -y powershell",
+                                    "pwsh -Command 'Install-Module powershell-yaml -Scope AllUsers -Verbose -Force;'"
                                 ]
                             }
                         }
@@ -322,7 +305,7 @@
                         "commands": {
                             "type": "String",
                             "description": "1. Install Atomics Folder",
-                            "default": "pwsh -Command 'IEX (IWR \"https:\/\/raw.githubusercontent.com\/redcanaryco\/invoke-atomicredteam\/master\/install-atomicsfolder.ps1\" -UseBasicParsing); Install-AtomicsFolder -Force; Install-Module powershell-yaml -Force;'"
+                            "default": "pwsh -Command 'IEX (IWR \"https:\/\/raw.githubusercontent.com\/redcanaryco\/invoke-atomicredteam\/master\/install-atomicsfolder.ps1\" -UseBasicParsing); Install-AtomicsFolder -Force;'"
                         }
                     },
                     "mainSteps": [
@@ -387,6 +370,52 @@
                 "DocumentFormat": "JSON",
                 "DocumentType": "Command",
                 "Name": "InstallInvokeAtomicRedTeam",
+                "Tags": [
+                    {
+                        "Key": "Owner",
+                        "Value": "TrendMicro"
+                    },
+                    {
+                        "Key": "Product",
+                        "Value": "TechDay2021-2"
+                    },
+                    {
+                        "Key": "Name",
+                        "Value": "TechDay2021-2"
+                    }
+                ],
+                "TargetType": "/AWS::EC2::Instance"
+            }
+        },
+        "RunWSSensorCheck": {
+            "Type": "AWS::SSM::Document",
+            "Properties": {
+                "Content": {
+                    "schemaVersion": "2.2",
+                    "description": "0.5 Check  if Activity Monitoring is enabled on instance",
+                    "parameters": {
+                        "commands": {
+                            "type": "String",
+                            "description": "0.5. Check  if Activity Monitoring is enabled on instance",
+                            "default": "/opt/ds_agent/sendCommand --get GetConfiguration | grep \"name='SENSOR'\""
+                        }
+                    },
+                    "mainSteps": [
+                        {
+                            "action": "aws:runShellScript",
+                            "name": "runCommands",
+                            "inputs": {
+                                "timeoutSeconds": "60",
+                                "runCommand": [
+                                    "{{ commands }}"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "DocumentFormat": "JSON",
+                "DocumentType": "Command",
+                "Name": "RunWSSensorCheck",
                 "Tags": [
                     {
                         "Key": "Owner",

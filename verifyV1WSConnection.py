@@ -52,4 +52,4 @@ def main(event, context):
 
     print("checkWorkloadConnectionStatus - " + str(checkWorkloadConnectionStatus(http, v1ApiEndpoint, headers)))
 
-    return checkWorkloadConnectionStatus(http, v1ApiEndpoint, headers)
+    return { "statusCode": 200, "body": checkWorkloadConnectionStatus(http, v1ApiEndpoint, headers) }

@@ -12,17 +12,26 @@ provider:
   region: us-east-2
   memorySize: 128
   timeout: 650
-  logRetentionInDays: 14
-  environment:
-    v1ApiEndpoint: https://api.xdr.trendmicro.com/
-    v1ApiVersion: beta
-    v1ApiAuthToken: eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJjaWQiOiJmYjRmM2ExZC01ZTY1LTRiNjMtYWFiMS04MTU0OTA4N2EwMzEiLCJjcGlkIjoic3ZwIiwicHBpZCI6ImN1cyIsIml0IjoxNjExNzgxMTg4LCJ1aWQiOiJnZW9yZ2UuZGF2aXNAdGNsYWJzLmNhIiwicGwiOiIiLCJldCI6MTY0MzMxNzE4N30.RCauPibOZhr6l2YKzXOTjZqmUemHez3wBoEfDL_jz0793oxXegZUHFfFx-2x1eNmFvO2oPglKYo2Su0CyjiMZOrSe2vdx-ZLa4TOA_9TnXM45jI3Yt4AoOyeGy9-8-zKDsXCmJAmuqbeMpq5cHT1ijVkHDZaTaiEyDccl490om55NTiVBYW4iBayGMPEnE9GK5oQ0wkpdkxmeUkYmtLQm2upN15VGSwH1-B9B4k8kO4vmZfoZk-BZxKJqtFE2-y74udCyoblSt8MVomWOC1HWMFW2Ke462b5dhresk7DijhFhMvFxI6bo1c7K8k9Dp_3DsTFHEaQ9pGXNAZPhmrRqfwy3KYap3hzaAmpX112Yed1RoBctx7FRtPuOJThR-3yE3xi4Us6FyKfTjKpkcCnT--IcqZOUsNw0sFklOLNPXqOXkTbPPtXwibl2RF9dwD2L4cfkHMznUy2p17ne5F6gWTNWYAf5mL2K_pPa3T8aZE3rYvvGRxEzxprRhkGpvBGZ8N0f0aH0XWfxtenYRK3fTfD9XYDEA7W59XKempeVKcJnwNUYj0IdlQzVlT42kh0UhfGicxclToonWSzzVdNahDpG82-X4p0Piv9saLaburKLresGo6OQjSQ1Aaiesfjj7dSZ5gT5Y2wen8qUeeKs6w9v0WOj35MVT0P4LsEkWY
+  logRetentionInDays: 14  
   tags:
     BusinessCase: TechDay2021-2
     Owner: georged
   stackTags:
     BusinessCase: TechDay2021-2
     Owner: georged
+  iam:
+    role:
+      name: techday-visionone-dispatcher
+      path: /
+      statements:
+        - Effect: 'Allow'
+          Resource: '*'
+          Action: 
+            - 'ssm:SendCommand'
+            - 'ssm:GetCommandInvocation'
+      tags:
+        BusinessCase: TechDay2021-2
+        Owner: georged
   lambdaHashingVersion: 20201221
 
 package:
@@ -37,28 +46,104 @@ functions:
     package:
       patterns:      
       - '*verifyV1WSConnection.py'
-  v1ResponseActions:
-    handler: v1ResponseActions.main
-    description: Respond with Vision One Context Menus
-    package:
-      patterns:      
-      - '*v1ResponseActions.py'
-  v1Notifications:
-    handler: v1Notifications.main
-    description: Trigger Vision One Notification Options
-    package:
-      patterns:      
-      - '*v1Notifications.py'
-  v1Search:
-    handler: v1Search.main
-    description: Query Vision One from the Vision One API
-    package:
-      patterns:      
-      - '*v1Search.py'
-  runCommand:
+    environment:
+      v1ApiEndpoint: https://api.xdr.trendmicro.com/
+      v1ApiVersion: beta
+      v1ApiAuthToken: eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJjaWQiOiJmYjRmM2ExZC01ZTY1LTRiNjMtYWFiMS04MTU0OTA4N2EwMzEiLCJjcGlkIjoic3ZwIiwicHBpZCI6ImN1cyIsIml0IjoxNjExNzgxMTg4LCJ1aWQiOiJnZW9yZ2UuZGF2aXNAdGNsYWJzLmNhIiwicGwiOiIiLCJldCI6MTY0MzMxNzE4N30.RCauPibOZhr6l2YKzXOTjZqmUemHez3wBoEfDL_jz0793oxXegZUHFfFx-2x1eNmFvO2oPglKYo2Su0CyjiMZOrSe2vdx-ZLa4TOA_9TnXM45jI3Yt4AoOyeGy9-8-zKDsXCmJAmuqbeMpq5cHT1ijVkHDZaTaiEyDccl490om55NTiVBYW4iBayGMPEnE9GK5oQ0wkpdkxmeUkYmtLQm2upN15VGSwH1-B9B4k8kO4vmZfoZk-BZxKJqtFE2-y74udCyoblSt8MVomWOC1HWMFW2Ke462b5dhresk7DijhFhMvFxI6bo1c7K8k9Dp_3DsTFHEaQ9pGXNAZPhmrRqfwy3KYap3hzaAmpX112Yed1RoBctx7FRtPuOJThR-3yE3xi4Us6FyKfTjKpkcCnT--IcqZOUsNw0sFklOLNPXqOXkTbPPtXwibl2RF9dwD2L4cfkHMznUy2p17ne5F6gWTNWYAf5mL2K_pPa3T8aZE3rYvvGRxEzxprRhkGpvBGZ8N0f0aH0XWfxtenYRK3fTfD9XYDEA7W59XKempeVKcJnwNUYj0IdlQzVlT42kh0UhfGicxclToonWSzzVdNahDpG82-X4p0Piv9saLaburKLresGo6OQjSQ1Aaiesfjj7dSZ5gT5Y2wen8qUeeKs6w9v0WOj35MVT0P4LsEkWY
+  # v1ResponseActions:
+  #   handler: v1ResponseActions.main
+  #   description: Respond with Vision One Context Menus
+  #   package:
+  #     patterns:      
+  #     - '*v1ResponseActions.py'
+  #   environment:
+  #     v1ApiEndpoint: https://api.xdr.trendmicro.com/
+  #     v1ApiVersion: beta
+  #     v1ApiAuthToken: eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJjaWQiOiJmYjRmM2ExZC01ZTY1LTRiNjMtYWFiMS04MTU0OTA4N2EwMzEiLCJjcGlkIjoic3ZwIiwicHBpZCI6ImN1cyIsIml0IjoxNjExNzgxMTg4LCJ1aWQiOiJnZW9yZ2UuZGF2aXNAdGNsYWJzLmNhIiwicGwiOiIiLCJldCI6MTY0MzMxNzE4N30.RCauPibOZhr6l2YKzXOTjZqmUemHez3wBoEfDL_jz0793oxXegZUHFfFx-2x1eNmFvO2oPglKYo2Su0CyjiMZOrSe2vdx-ZLa4TOA_9TnXM45jI3Yt4AoOyeGy9-8-zKDsXCmJAmuqbeMpq5cHT1ijVkHDZaTaiEyDccl490om55NTiVBYW4iBayGMPEnE9GK5oQ0wkpdkxmeUkYmtLQm2upN15VGSwH1-B9B4k8kO4vmZfoZk-BZxKJqtFE2-y74udCyoblSt8MVomWOC1HWMFW2Ke462b5dhresk7DijhFhMvFxI6bo1c7K8k9Dp_3DsTFHEaQ9pGXNAZPhmrRqfwy3KYap3hzaAmpX112Yed1RoBctx7FRtPuOJThR-3yE3xi4Us6FyKfTjKpkcCnT--IcqZOUsNw0sFklOLNPXqOXkTbPPtXwibl2RF9dwD2L4cfkHMznUy2p17ne5F6gWTNWYAf5mL2K_pPa3T8aZE3rYvvGRxEzxprRhkGpvBGZ8N0f0aH0XWfxtenYRK3fTfD9XYDEA7W59XKempeVKcJnwNUYj0IdlQzVlT42kh0UhfGicxclToonWSzzVdNahDpG82-X4p0Piv9saLaburKLresGo6OQjSQ1Aaiesfjj7dSZ5gT5Y2wen8qUeeKs6w9v0WOj35MVT0P4LsEkWY
+  # v1Notifications:
+  #   handler: v1Notifications.main
+  #   description: Trigger Vision One Notification Options
+  #   package:
+  #     patterns:      
+  #     - '*v1Notifications.py'
+  #   environment:
+  #     v1ApiEndpoint: https://api.xdr.trendmicro.com/
+  #     v1ApiVersion: beta
+  #     v1ApiAuthToken: eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJjaWQiOiJmYjRmM2ExZC01ZTY1LTRiNjMtYWFiMS04MTU0OTA4N2EwMzEiLCJjcGlkIjoic3ZwIiwicHBpZCI6ImN1cyIsIml0IjoxNjExNzgxMTg4LCJ1aWQiOiJnZW9yZ2UuZGF2aXNAdGNsYWJzLmNhIiwicGwiOiIiLCJldCI6MTY0MzMxNzE4N30.RCauPibOZhr6l2YKzXOTjZqmUemHez3wBoEfDL_jz0793oxXegZUHFfFx-2x1eNmFvO2oPglKYo2Su0CyjiMZOrSe2vdx-ZLa4TOA_9TnXM45jI3Yt4AoOyeGy9-8-zKDsXCmJAmuqbeMpq5cHT1ijVkHDZaTaiEyDccl490om55NTiVBYW4iBayGMPEnE9GK5oQ0wkpdkxmeUkYmtLQm2upN15VGSwH1-B9B4k8kO4vmZfoZk-BZxKJqtFE2-y74udCyoblSt8MVomWOC1HWMFW2Ke462b5dhresk7DijhFhMvFxI6bo1c7K8k9Dp_3DsTFHEaQ9pGXNAZPhmrRqfwy3KYap3hzaAmpX112Yed1RoBctx7FRtPuOJThR-3yE3xi4Us6FyKfTjKpkcCnT--IcqZOUsNw0sFklOLNPXqOXkTbPPtXwibl2RF9dwD2L4cfkHMznUy2p17ne5F6gWTNWYAf5mL2K_pPa3T8aZE3rYvvGRxEzxprRhkGpvBGZ8N0f0aH0XWfxtenYRK3fTfD9XYDEA7W59XKempeVKcJnwNUYj0IdlQzVlT42kh0UhfGicxclToonWSzzVdNahDpG82-X4p0Piv9saLaburKLresGo6OQjSQ1Aaiesfjj7dSZ5gT5Y2wen8qUeeKs6w9v0WOj35MVT0P4LsEkWY
+  # v1Search:
+  #   handler: v1Search.main
+  #   description: Query Vision One from the Vision One API
+  #   package:
+  #     patterns:      
+  #     - '*v1Search.py'
+  #   environment:
+  #     v1ApiEndpoint: https://api.xdr.trendmicro.com/
+  #     v1ApiVersion: beta
+  #     v1ApiAuthToken: eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJjaWQiOiJmYjRmM2ExZC01ZTY1LTRiNjMtYWFiMS04MTU0OTA4N2EwMzEiLCJjcGlkIjoic3ZwIiwicHBpZCI6ImN1cyIsIml0IjoxNjExNzgxMTg4LCJ1aWQiOiJnZW9yZ2UuZGF2aXNAdGNsYWJzLmNhIiwicGwiOiIiLCJldCI6MTY0MzMxNzE4N30.RCauPibOZhr6l2YKzXOTjZqmUemHez3wBoEfDL_jz0793oxXegZUHFfFx-2x1eNmFvO2oPglKYo2Su0CyjiMZOrSe2vdx-ZLa4TOA_9TnXM45jI3Yt4AoOyeGy9-8-zKDsXCmJAmuqbeMpq5cHT1ijVkHDZaTaiEyDccl490om55NTiVBYW4iBayGMPEnE9GK5oQ0wkpdkxmeUkYmtLQm2upN15VGSwH1-B9B4k8kO4vmZfoZk-BZxKJqtFE2-y74udCyoblSt8MVomWOC1HWMFW2Ke462b5dhresk7DijhFhMvFxI6bo1c7K8k9Dp_3DsTFHEaQ9pGXNAZPhmrRqfwy3KYap3hzaAmpX112Yed1RoBctx7FRtPuOJThR-3yE3xi4Us6FyKfTjKpkcCnT--IcqZOUsNw0sFklOLNPXqOXkTbPPtXwibl2RF9dwD2L4cfkHMznUy2p17ne5F6gWTNWYAf5mL2K_pPa3T8aZE3rYvvGRxEzxprRhkGpvBGZ8N0f0aH0XWfxtenYRK3fTfD9XYDEA7W59XKempeVKcJnwNUYj0IdlQzVlT42kh0UhfGicxclToonWSzzVdNahDpG82-X4p0Piv9saLaburKLresGo6OQjSQ1Aaiesfjj7dSZ5gT5Y2wen8qUeeKs6w9v0WOj35MVT0P4LsEkWY
+  InstallPowerShell:
     handler: runCommand.main
-    description: Run Command - AWS Systems Manager
+    description: Run Command - InstallPowerShell - AWS Systems Manager
     package:
       patterns:      
       - '*runCommand.py'
+    environment:
+      ACTION_ID: InstallPowerShell
+  InstallAtomicsFolder:
+    handler: runCommand.main
+    description: Run Command - InstallAtomicsFolder - AWS Systems Manager
+    package:
+      patterns:      
+      - '*runCommand.py'
+    environment:
+      ACTION_ID: InstallAtomicsFolder
+  InstallInvokeAtomicRedTeam:
+    handler: runCommand.main
+    description: Run Command - InstallInvokeAtomicRedTeam - AWS Systems Manager
+    package:
+      patterns:      
+      - '*runCommand.py'
+    environment:
+      ACTION_ID: InstallInvokeAtomicRedTeam
+  RunWSSensorCheck:
+    handler: verifyWSSensor.main
+    description: Verify Cloud One Workload Security Activity Monitoring is turned ON - Run Command - RunWSSensorCheck - AWS Systems Manager
+    package:
+      patterns:      
+      - '*verifyWSSensor.py'
+    environment:
+      ACTION_ID: RunWSSensorCheck
+      INSTANCE_ID: i-0ab406aaa1989d81e
+      SLEEP_TIMER: 3
+  RunTestCommand:
+    handler: runCommand.main
+    description: Run Command - RunTestCommand - AWS Systems Manager
+    package:
+      patterns:      
+      - '*runCommand.py'
+    environment:
+      ACTION_ID: RunTestCommand
+  T15470061:
+    handler: runCommand.main
+    description: Run Command - T15470061 - AWS Systems Manager
+    package:
+      patterns:      
+      - '*runCommand.py'
+    environment:
+      ACTION_ID: T15470061
+  T11360015:
+    handler: runCommand.main
+    description: Run Command - T11360015 - AWS Systems Manager
+    package:
+      patterns:      
+      - '*runCommand.py'
+    environment:
+      ACTION_ID: T11360015
+  T10870012:
+    handler: runCommand.main
+    description: Run Command - T10870012 - AWS Systems Manager
+    package:
+      patterns:      
+      - '*runCommand.py'
+    environment:
+      ACTION_ID: T10870012
 
