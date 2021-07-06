@@ -9,7 +9,7 @@ provider:
   name: aws
   runtime: python3.8
   stage: prod
-  region: us-east-2
+  REGION_NAME: us-east-2
   memorySize: 128
   timeout: 650
   logRetentionInDays: 14  
@@ -88,6 +88,7 @@ functions:
       - '*runCommand.py'
     environment:
       ACTION_ID: InstallPowerShell
+      REGION_NAME: us-east-2
   InstallAtomicsFolder:
     handler: runCommand.main
     description: Run Command - InstallAtomicsFolder - AWS Systems Manager
@@ -96,6 +97,7 @@ functions:
       - '*runCommand.py'
     environment:
       ACTION_ID: InstallAtomicsFolder
+      REGION_NAME: us-east-2
   InstallInvokeAtomicRedTeam:
     handler: runCommand.main
     description: Run Command - InstallInvokeAtomicRedTeam - AWS Systems Manager
@@ -104,6 +106,7 @@ functions:
       - '*runCommand.py'
     environment:
       ACTION_ID: InstallInvokeAtomicRedTeam
+      REGION_NAME: us-east-2
   RunWSSensorCheck:
     handler: verifyWSSensor.main
     description: Verify Cloud One Workload Security Activity Monitoring is turned ON - Run Command - RunWSSensorCheck - AWS Systems Manager
@@ -112,6 +115,7 @@ functions:
       - '*verifyWSSensor.py'
     environment:
       ACTION_ID: RunWSSensorCheck
+      REGION_NAME: us-east-2
       INSTANCE_ID: i-0ab406aaa1989d81e
       SLEEP_TIMER: 3
   RunTestCommand:
@@ -122,6 +126,7 @@ functions:
       - '*runCommand.py'
     environment:
       ACTION_ID: RunTestCommand
+      REGION_NAME: us-east-2
   T15470061:
     handler: runCommand.main
     description: Run Command - T15470061 - AWS Systems Manager
@@ -130,6 +135,7 @@ functions:
       - '*runCommand.py'
     environment:
       ACTION_ID: T15470061
+      REGION_NAME: us-east-2
   T11360015:
     handler: runCommand.main
     description: Run Command - T11360015 - AWS Systems Manager
@@ -138,6 +144,7 @@ functions:
       - '*runCommand.py'
     environment:
       ACTION_ID: T11360015
+      REGION_NAME: us-east-2
   T10870012:
     handler: runCommand.main
     description: Run Command - T10870012 - AWS Systems Manager
@@ -146,4 +153,5 @@ functions:
       - '*runCommand.py'
     environment:
       ACTION_ID: T10870012
+      REGION_NAME: us-east-2
 

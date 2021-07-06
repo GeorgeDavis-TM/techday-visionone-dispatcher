@@ -52,4 +52,7 @@ def main(event, context):
 
     print("checkWorkloadConnectionStatus - " + str(checkWorkloadConnectionStatus(http, v1ApiEndpoint, headers)))
 
-    return { "statusCode": 200, "body": checkWorkloadConnectionStatus(http, v1ApiEndpoint, headers) }
+    if (checkWorkloadConnectionStatus(http, v1ApiEndpoint, headers) != True):
+        raise Exception("You haven't finished this challenge, because Workload Security Product Connector is not configured for your Vision One instance.")
+        return(False)
+    return(True)

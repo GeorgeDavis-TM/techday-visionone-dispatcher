@@ -111,10 +111,11 @@ def runAttacks(ssmClient, actionId):
 def main(event, context):
 
     actionId = str(os.environ.get("ACTION_ID")) if 'ACTION_ID' in os.environ else None
+    regionName = str(os.environ.get("REGION_NAME")) if 'REGION_NAME' in os.environ else None
 
-    if actionId:
+    if actionId and regionName:
     
-        ssmClient = boto3.client('ssm')    
+        ssmClient = boto3.client('ssm', region_name=regionName)  
         
         # print("InstallPowerShell - " + str(InstallPowerShell(ssmClient)))
         # print("InstallAtomicsFolder - " + str(InstallAtomicsFolder(ssmClient)))

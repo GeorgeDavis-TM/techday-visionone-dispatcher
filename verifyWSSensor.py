@@ -38,12 +38,13 @@ def runAttacks(ssmClient, actionId):
 def main(event, context):
 
     actionId = str(os.environ.get("ACTION_ID")) if 'ACTION_ID' in os.environ else None
+    regionName = str(os.environ.get("REGION_NAME")) if 'REGION_NAME' in os.environ else None
     instanceId = str(os.environ.get("INSTANCE_ID")) if 'INSTANCE_ID' in os.environ else None
     sleepTimer = int(os.environ.get("SLEEP_TIMER")) if 'SLEEP_TIMER' in os.environ else 5
 
-    if actionId and instanceId:
-    
-        ssmClient = boto3.client('ssm')    
+    if actionId and regionName and instanceId:
+
+        ssmClient = boto3.client('ssm', region_name=regionName)    
         
         runCommandResponse = runAttacks(ssmClient, actionId)
         print("Sent Command. Received response - " + str(runCommandResponse))
@@ -70,6 +71,7 @@ def main(event, context):
         
         print(str(getCommandInvocationResponse))
 
-        return { "statusCode": 200, "body": verifyWSSensor(getCommandInvocationResponse) }   
-    
-    return { "statusCode": 400, "body": False }
+        if (verifyWSSensor(getCommandInvocationResponse) != True):
+            raise Exception("You haven't finished this challenge, because Activity Monitoring is not enabled in your policy.")
+            return(False)
+        return(True)
