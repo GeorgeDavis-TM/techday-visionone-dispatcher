@@ -36,3 +36,6 @@ Invoke-AtomicTest T1136.001 -TestNumbers 5 -Cleanup
 
 # T1087.001-2 View sudoers access
 Invoke-AtomicTest T1087.001 -TestNumbers 2 -Cleanup
+
+# Update the S3 Bucket zips on GitHub
+aws s3 cp s3://techday-visionone-dispat-serverlessdeploymentbuck-at8c7j4zud9q/serverless/techday-visionone-dispatcher/prod/1625512488535-2021-07-05T19:14:48.535Z/ . --recursive

@@ -1,6 +1,6 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "Vision One + Workload Security Challenge - Tech Day 2020 - 2",
+    "Description": "Vision One + Workload Security Challenge - Tech Day 2021 - 2",
     "Parameters": {
         "VpcId": {
             "Type": "AWS::EC2::VPC::Id",
