@@ -9,7 +9,7 @@ provider:
   name: aws
   runtime: python3.8
   stage: prod
-  REGION_NAME: us-east-2
+  region: us-east-2
   memorySize: 128
   timeout: 650
   logRetentionInDays: 14  
