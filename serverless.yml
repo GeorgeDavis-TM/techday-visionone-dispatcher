@@ -14,11 +14,9 @@ provider:
   timeout: 650
   logRetentionInDays: 14  
   tags:
-    BusinessCase: TechDay2021-2
-    Owner: georged
+    BusinessCase: WSV1-TechDay2021-2
   stackTags:
-    BusinessCase: TechDay2021-2
-    Owner: georged
+    BusinessCase: WSV1-TechDay2021-2
   iam:
     role:
       name: techday-visionone-dispatcher
@@ -30,8 +28,7 @@ provider:
             - 'ssm:SendCommand'
             - 'ssm:GetCommandInvocation'
       tags:
-        BusinessCase: TechDay2021-2
-        Owner: georged
+        BusinessCase: WSV1-TechDay2021-2
   lambdaHashingVersion: 20201221
 
 package:

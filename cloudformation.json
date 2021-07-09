@@ -158,11 +158,11 @@
                     },
                     {
                         "Key": "Product",
-                        "Value": "TechDay2021-2"
+                        "Value": "WSV1-TechDay2021-2"
                     },
                     {
                         "Key": "Name",
-                        "Value": "TechDay2021-2"
+                        "Value": "WSV1-TechDay2021-2"
                     }
                 ]
             }
@@ -170,8 +170,8 @@
         "EC2SecurityGroup": {
             "Type": "AWS::EC2::SecurityGroup",
             "Properties": {
-                "GroupDescription": "Security Group - TechDay2021-2",
-                "GroupName": "TechDay2021-2",
+                "GroupDescription": "Security Group - WSV1-TechDay2021-2",
+                "GroupName": "WSV1-TechDay2021-2",
                 "SecurityGroupIngress": [
                     {
                         "CidrIp": "99.251.123.74/32",
@@ -188,11 +188,11 @@
                     },
                     {
                         "Key": "Product",
-                        "Value": "TechDay2021-2"
+                        "Value": "WSV1-TechDay2021-2"
                     },
                     {
                         "Key": "Name",
-                        "Value": "TechDay2021-2"
+                        "Value": "WSV1-TechDay2021-2"
                     }
                 ],
                 "VpcId": {
@@ -219,13 +219,13 @@
                         }
                     ]
                 },
-                "Description": "TechDay2021-2-SSM-Role",
+                "Description": "WSV1-TechDay2021-2-SSM-Role",
                 "ManagedPolicyArns": [
                     "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
                     "arn:aws:iam::aws:policy/AmazonSSMPatchAssociation"
                 ],
                 "Path": "/",
-                "RoleName": "TechDay2021-2-SSM-Role",
+                "RoleName": "WSV1-TechDay2021-2-SSM-Role",
                 "Tags": [
                     {
                         "Key": "Owner",
@@ -233,11 +233,11 @@
                     },
                     {
                         "Key": "Product",
-                        "Value": "TechDay2021-2"
+                        "Value": "WSV1-TechDay2021-2"
                     },
                     {
                         "Key": "Name",
-                        "Value": "TechDay2021-2"
+                        "Value": "WSV1-TechDay2021-2"
                     }
                 ]
             }
@@ -245,7 +245,7 @@
         "SSMIAMInstanceProfile": {
             "Type": "AWS::IAM::InstanceProfile",
             "Properties": {
-                "InstanceProfileName": "TechDay2021-2-SSM-InstanceProfile",
+                "InstanceProfileName": "WSV1-TechDay2021-2-SSM-InstanceProfile",
                 "Path": "/",
                 "Roles": [
                     {
@@ -285,11 +285,11 @@
                     },
                     {
                         "Key": "Product",
-                        "Value": "TechDay2021-2"
+                        "Value": "WSV1-TechDay2021-2"
                     },
                     {
                         "Key": "Name",
-                        "Value": "TechDay2021-2"
+                        "Value": "WSV1-TechDay2021-2"
                     }
                 ],
                 "TargetType": "/AWS::EC2::Instance"
@@ -331,11 +331,11 @@
                     },
                     {
                         "Key": "Product",
-                        "Value": "TechDay2021-2"
+                        "Value": "WSV1-TechDay2021-2"
                     },
                     {
                         "Key": "Name",
-                        "Value": "TechDay2021-2"
+                        "Value": "WSV1-TechDay2021-2"
                     }
                 ],
                 "TargetType": "/AWS::EC2::Instance"
@@ -377,11 +377,11 @@
                     },
                     {
                         "Key": "Product",
-                        "Value": "TechDay2021-2"
+                        "Value": "WSV1-TechDay2021-2"
                     },
                     {
                         "Key": "Name",
-                        "Value": "TechDay2021-2"
+                        "Value": "WSV1-TechDay2021-2"
                     }
                 ],
                 "TargetType": "/AWS::EC2::Instance"
@@ -423,11 +423,11 @@
                     },
                     {
                         "Key": "Product",
-                        "Value": "TechDay2021-2"
+                        "Value": "WSV1-TechDay2021-2"
                     },
                     {
                         "Key": "Name",
-                        "Value": "TechDay2021-2"
+                        "Value": "WSV1-TechDay2021-2"
                     }
                 ],
                 "TargetType": "/AWS::EC2::Instance"
@@ -469,11 +469,11 @@
                     },
                     {
                         "Key": "Product",
-                        "Value": "TechDay2021-2"
+                        "Value": "WSV1-TechDay2021-2"
                     },
                     {
                         "Key": "Name",
-                        "Value": "TechDay2021-2"
+                        "Value": "WSV1-TechDay2021-2"
                     }
                 ],
                 "TargetType": "/AWS::EC2::Instance"
@@ -515,11 +515,11 @@
                     },
                     {
                         "Key": "Product",
-                        "Value": "TechDay2021-2"
+                        "Value": "WSV1-TechDay2021-2"
                     },
                     {
                         "Key": "Name",
-                        "Value": "TechDay2021-2"
+                        "Value": "WSV1-TechDay2021-2"
                     }
                 ],
                 "TargetType": "/AWS::EC2::Instance"
@@ -561,11 +561,11 @@
                     },
                     {
                         "Key": "Product",
-                        "Value": "TechDay2021-2"
+                        "Value": "WSV1-TechDay2021-2"
                     },
                     {
                         "Key": "Name",
-                        "Value": "TechDay2021-2"
+                        "Value": "WSV1-TechDay2021-2"
                     }
                 ],
                 "TargetType": "/AWS::EC2::Instance"
@@ -607,11 +607,11 @@
                     },
                     {
                         "Key": "Product",
-                        "Value": "TechDay2021-2"
+                        "Value": "WSV1-TechDay2021-2"
                     },
                     {
                         "Key": "Name",
-                        "Value": "TechDay2021-2"
+                        "Value": "WSV1-TechDay2021-2"
                     }
                 ],
                 "TargetType": "/AWS::EC2::Instance"

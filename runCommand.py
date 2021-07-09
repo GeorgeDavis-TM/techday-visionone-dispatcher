@@ -11,7 +11,7 @@ def runAttacks(ssmClient, actionId):
             {
                 'Key': 'tag:Product',
                 'Values': [
-                    'TechDay2021-2',
+                    'WSV1-TechDay2021-2',
                 ]
             },
         ],
