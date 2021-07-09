@@ -4,6 +4,9 @@ import os
 
 def main(event, context):
 
+    print("ResponseURL - " + str(event["ResponseURL"]))
+    print("RequestId - " + str(event["RequestId"]))
+
     regionName = str(os.environ.get("REGION_NAME")) if 'REGION_NAME' in os.environ else None
     functionsList = str(os.environ.get("FUNCTIONS_LIST")).split(",") if 'FUNCTIONS_LIST' in os.environ else None
 
